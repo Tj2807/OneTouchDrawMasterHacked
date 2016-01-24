@@ -13,13 +13,13 @@ bwimg=im2bw(img_gray,level1);
 figure(1)
 imshow(bwimg)
 
-[level,bwredline]=thresh_tool(img_r);
-figure(2)
-imshow(bwredline)
-% level2=200/255;
-% bwredline=im2bw(img_r,level1);
+% [level,bwredline]=thresh_tool(img_r);
 % figure(2)
 % imshow(bwredline)
+level2=200/255;
+bwredline=im2bw(img_r,level2);
+figure(2)
+imshow(bwredline)
 
 img1=bwareafilt(bwimg,[3300,3340]);
 bwallline=bwimg&~img1;
@@ -45,10 +45,7 @@ for k=1:cc.NumObjects
         noCircles=noCircles+1;
         flag=1;
     end
-    
-%     if flag==0
-%         Lindex=[Lindex;k];
-%     end
+   
 end
 
 %noLines=cc.NumObjects-noCircles;
@@ -81,7 +78,7 @@ for m=1:noCircles
 %         if bwimg(coordinate1(2),coordinate1(1))&&bwimg(coordinate2(2),coordinate2(1))&&bwimg(coordinate3(2),coordinate3(1))
 %               graph(m,n)=1;
 %         end
-%         m=1;n=2;
+%         m=1;n=5;
         x1=Ccentroid(m,1);
         x2=Ccentroid(n,1);
         y1=Ccentroid(m,2);
@@ -91,24 +88,26 @@ for m=1:noCircles
         c2=x2+1i*y2;
         dis=abs(c1-c2);
         
-        points=conj(linspace(c1,c2,10))';
+        minSpacing=ceil(dis/50);
+        points=conj(linspace(c1,c2,minSpacing))';
         margin1=abs(points-c1);
-        index1=find(margin1<70);
+        index1=find(margin1<100);
         
         margin2=abs(points-c2);
-        index2=find(margin2<70);
+        index2=find(margin2<100);
         
         index=[index1;index2];
         points(index)=[];
         
         x=floor(real(points));y=floor(imag(points));
         
-        if bwallline(y,x)
+        if diag(bwallline(y,x))
             graph(m,n)=1;
+            if bwredline(y(1),x(1)) && bwredline(y(end),x(end))
+            graph(m,n)=2;
+            end
         end    
-
     end
 end
-
-inputGraph(graph);
-
+%%
+inputGraph(graph)

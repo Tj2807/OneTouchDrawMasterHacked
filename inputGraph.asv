@@ -1,3 +1,0 @@
-function inputGraph(
-a = eulerGraph(inp);
-a.startEuler()
