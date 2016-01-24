@@ -1,3 +1,4 @@
+%Import the screenshot and rename it as img in the workspace and run program
 img_gray=rgb2gray(img);
 img_gray=img_gray(251:end-350,:);
 
