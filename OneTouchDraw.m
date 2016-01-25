@@ -3,18 +3,13 @@ clearvars -except img
 clc
 close all
 warning off
-
+%%
 img_gray=rgb2gray(img);
 %img_crop=img(1:end-350,:,:);    %For Level Mode
 img_crop=img(251:end-350,:,:);  % For Master Mode
 
 img_gray=img_gray(251:end-350,:); % For Master Mode
 %img_gray=img_gray(1:end-350,:);   %For Level Mode
-
-img_r=img(:,:,1);
-img_r=img_r(251:end-350,:);  % For Master Mode 
-%img_r=img_r(1:end-350,:);  % For Level Mode
- 
 
 % [level,bwimg]=thresh_tool(img_gray);
 % imshow(bwimg)
@@ -23,7 +18,10 @@ level1=110/255;
 bwimg=im2bw(img_gray,level1);
 figure(1)
 imshow(bwimg)
-
+%%
+img_r=img(:,:,1);
+img_r=img_r(251:end-350,:);  % For Master Mode 
+%img_r=img_r(1:end-350,:);  % For Level Mode
 % [level,bwredline]=thresh_tool(img_r);
 % figure(2)
 % imshow(bwredline)
