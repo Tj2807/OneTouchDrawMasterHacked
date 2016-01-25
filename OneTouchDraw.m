@@ -9,9 +9,9 @@ clc
 close all
 warning off
 %%
-% figure(1)
-% imshow(img)
 img=imread('img.png');
+%figure(1)
+%imshow(img)
 img_gray=rgb2gray(img);
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
@@ -131,4 +131,4 @@ end
 
 showAnnotatedImg(img_crop,noNode,Ccentroid);
 %%
-inputGraph(graph)
+inputGraph(graph,Ccentroid)

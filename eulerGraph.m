@@ -35,7 +35,7 @@ classdef eulerGraph < handle
                 isIt=0;
             end
         end
-        function ansArray = startEuler(obj)
+        function ansCellArray = startEuler(obj,circleCoors)
             if ~obj.isEuler()
                 fprintf('The Graph Matrix Input Does not have a valid Euler Path/Circuit');
             end
@@ -43,7 +43,8 @@ classdef eulerGraph < handle
             obj.eulerAnsArray= {};
             u=obj.oddVertex;
             obj.storeEuler(u);
-            ansArray = obj.eulerAnsArray;
+            ansCellArray = obj.eulerAnsArray;
+            actionOutputAutomate(ansCellArray,circleCoors);
         end
         function storeEuler(obj,vertex)
             %fprintf('here at %d\n',vertex);
@@ -95,5 +96,33 @@ classdef eulerGraph < handle
             end
         end
     end
+end
+
+
+%% The outputActionAutomate Block.
+
+function actionOutputAutomate(outputCellArray,circleCoors)
+    nextButtonX = 945;
+    nextButtonY = 1050;
+    swipeDuration = 100;
+    nEdges = size(outputCellArray,1);
+    
+    for i=1:1:nEdges
+        %Get edge from and to vertex from Cell Array.
+        fromVertex = outputCellArray{i,1};
+        toVertex = outputCellArray{i,2};
+        %Get coordinated of the edge Circles
+        fromVertexCoorX = circleCoors(fromVertex,1);
+        fromVertexCoorY = circleCoors(fromVertex,2);
+        toVertexCoorX = circleCoors(toVertex,1);
+        toVertexCoorY = circleCoors(toVertex,2);
+        %Do the Swipe
+        SwipeCommandArray=['adb shell input swipe' ' ' num2str(fromVertexCoorX) ' ' num2str(fromVertexCoorY) ' ' num2str(toVertexCoorX) ' ' num2str(toVertexCoorY) ' ' num2str(swipeDuration)];
+        system(SwipeCommandArray);
+    end
+        % Level completed.Wait for Next button to appear and tap it.
+        pause(2);
+        nextTapArray = ['adb shell input tap' ' ' num2str(nextButtonX) ' ' num2str(nextButtonY)];
+        system(nextTapArray);
 end
     
