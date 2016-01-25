@@ -1,11 +1,6 @@
 %Import the screenshot and rename it as img in the workspace and run program
-clearvars -except img
-clc
-close all
-warning off
-
 img_gray=rgb2gray(img);
-img_crop=img(251:end-350,:,:);
+
 img_gray=img_gray(251:end-350,:); % For Master Mode
 %img_gray=img_gray(1:end-350,:);   %For Level Mode
 
@@ -73,7 +68,7 @@ graph=zeros(noNode);
 
 
 for m=1:noNode
-    for n=1:noNode
+    for n=1:noCircles
         if m==n
             continue;
         end
@@ -118,7 +113,5 @@ for m=1:noNode
         end    
     end
 end
-
-showAnnotatedImg(img_crop,noNode,Ccentroid);
 %%
 inputGraph(graph)
