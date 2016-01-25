@@ -5,7 +5,9 @@ close all
 warning off
 
 img_gray=rgb2gray(img);
-img_crop=img(251:end-350,:,:);
+%img_crop=img(1:end-350,:,:);    %For Level Mode
+img_crop=img(251:end-350,:,:);  % For Master Mode
+
 img_gray=img_gray(251:end-350,:); % For Master Mode
 %img_gray=img_gray(1:end-350,:);   %For Level Mode
 
