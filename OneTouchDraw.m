@@ -95,7 +95,7 @@ for m=1:noNode
 %         if bwimg(coordinate1(2),coordinate1(1))&&bwimg(coordinate2(2),coordinate2(1))&&bwimg(coordinate3(2),coordinate3(1))
 %               graph(m,n)=1;
 %         end
-%         m=1;n=5;
+%          m=1;n=5;
         x1=Ccentroid(m,1);
         x2=Ccentroid(n,1);
         y1=Ccentroid(m,2);
@@ -105,13 +105,13 @@ for m=1:noNode
         c2=x2+1i*y2;
         dis=abs(c1-c2);
         
-        minSpacing=ceil(dis/50);
+        minSpacing=ceil(dis/10);
         points=conj(linspace(c1,c2,minSpacing))';
         margin1=abs(points-c1);
-        index1=find(margin1<100);
+        index1=find(margin1<70);
         
         margin2=abs(points-c2);
-        index2=find(margin2<100);
+        index2=find(margin2<70);
         
         index=[index1;index2];
         points(index)=[];
