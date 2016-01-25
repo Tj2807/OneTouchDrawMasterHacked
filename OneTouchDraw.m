@@ -1,8 +1,8 @@
 img_gray=rgb2gray(img);
-img_gray=img_gray(251:end-350,:);
+img_gray=img_gray(1:end-350,:);
 
 img_r=img(:,:,1);
-img_r=img_r(251:end-350,:);
+img_r=img_r(1:end-350,:);
 
 
 % [level,bwimg]=thresh_tool(img_gray);
