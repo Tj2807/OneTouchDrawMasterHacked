@@ -1,3 +1,7 @@
+%Written and Conceptualized by Arpan Majumdar.
+%This code is OpenSource and can be directly used in any project without
+%the need of taking any permission.
+
 %Import the screenshot and rename it as img in the workspace and run program
 clearvars -except img
 clc
