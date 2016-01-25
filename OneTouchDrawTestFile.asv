@@ -9,9 +9,7 @@ clc
 close all
 warning off
 %%
-% figure(1)
-% imshow(img)
-img=imread('img.png');
+imshow(img)
 img_gray=rgb2gray(img);
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
@@ -19,52 +17,64 @@ img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_gray=img_gray(251:end-340,:); % For Master Mode
 img_gray=img_gray(1:end-340,:);   %For Level Mode
 
-% [level,bwimg]=thresh_tool(img_gray);
-% imshow(bwimg)
+[level,bwimg]=thresh_tool(img_gray);
+imshow(bwimg)
 
-level1=110/255;
-bwimg=im2bw(img_gray,level1);
-% figure(1)
-% imshow(bwimg)
+% level1=110/255;
+% bwimg=im2bw(img_gray,level1);
+figure(1)
+imshow(bwimg)
 %%
 img_r=img(:,:,1);
 %img_r=img_r(251:end-340,:);  % For Master Mode 
 img_r=img_r(1:end-340,:);  % For Level Mode
-% [level,bwredline]=thresh_tool(img_r);
+[level,bwredline]=thresh_tool(img_r);
+figure(2)
+imshow(bwredline)
+% level2=200/255;
+% bwredline=im2bw(img_r,level2);
 % figure(2)
 % imshow(bwredline)
-level2=200/255;
-bwredline=im2bw(img_r,level2);
-% figure(2)
-% imshow(bwredline)
-
-img1=bwareafilt(bwimg,[3300,3340]);
-bwallline=bwimg&~img1;
-% figure(3)
-% imshow(bwallline)
 
 %%
 cc=bwconncomp(bwimg);
 stats=regionprops(bwimg,'Centroid','MajorAxisLength','MinorAxisLength','Area');
-%%
+%% Node detection
 noNode=0;
 epsilon=10;
 
 Cindex=[];Lindex=[];
 
+nodes=zeros(size(bwimg));
+label=bwlabel(bwimg);
+
 for k=1:cc.NumObjects
-    flag=0;
+    
     majorAxis=stats(k).MajorAxisLength;
     minorAxis=stats(k).MinorAxisLength;
 
-    if abs(majorAxis-minorAxis)<epsilon
+    %Circle detection
+    if abs(majorAxis-minorAxis)<epsilon && ...
+            minorAxis>55 && minorAxis<65 &&...
+            majorAxis>65 && majorAxis<75 && 
+            stats(k).Area>3300 && stats(k).Area<3450
+        
         Cindex=[Cindex;k];
         noNode=noNode+1;
-        flag=1;
+        
+        label=bwlabel(bwimg);
+    map=label==k;
+    nodes=nodes | (label==k);
     end
+    
+    %Arrow detection
+    if stats(k).Area>1750 && stats(k).Area<1850 && ...
+            stats(k).MajorAxisLength>45 && stats(k).MajorAxisLength<60 
    
 end
+%% Arrow detection
 
+bwallline=bwimg&~nodes;
 %noLines=cc.NumObjects-noNode;
 %%
 centroid=zeros(cc.NumObjects,2);
@@ -97,7 +107,7 @@ for m=1:noNode
 %         if bwimg(coordinate1(2),coordinate1(1))&&bwimg(coordinate2(2),coordinate2(1))&&bwimg(coordinate3(2),coordinate3(1))
 %               graph(m,n)=1;
 %         end
-%          m=1;n=5;
+         m=1;n=3;
         x1=Ccentroid(m,1);
         x2=Ccentroid(n,1);
         y1=Ccentroid(m,2);
