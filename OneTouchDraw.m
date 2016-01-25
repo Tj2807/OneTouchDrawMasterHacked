@@ -5,39 +5,41 @@
 %Import the screenshot and rename it as img in the workspace and run program
 clearvars -except img
 clc
+
 close all
 warning off
 %%
+imshow(img)
 img_gray=rgb2gray(img);
-%img_crop=img(1:end-350,:,:);    %For Level Mode
-img_crop=img(251:end-350,:,:);  % For Master Mode
+img_crop=img(1:end-350,:,:);    %For Level Mode
+%img_crop=img(251:end-350,:,:);  % For Master Mode
 
-img_gray=img_gray(251:end-350,:); % For Master Mode
-%img_gray=img_gray(1:end-350,:);   %For Level Mode
+%img_gray=img_gray(251:end-350,:); % For Master Mode
+img_gray=img_gray(1:end-350,:);   %For Level Mode
 
 % [level,bwimg]=thresh_tool(img_gray);
 % imshow(bwimg)
 
 level1=110/255;
 bwimg=im2bw(img_gray,level1);
-figure(1)
-imshow(bwimg)
+% figure(1)
+% imshow(bwimg)
 %%
 img_r=img(:,:,1);
-img_r=img_r(251:end-350,:);  % For Master Mode 
-%img_r=img_r(1:end-350,:);  % For Level Mode
+%img_r=img_r(251:end-350,:);  % For Master Mode 
+img_r=img_r(1:end-350,:);  % For Level Mode
 % [level,bwredline]=thresh_tool(img_r);
 % figure(2)
 % imshow(bwredline)
 level2=200/255;
 bwredline=im2bw(img_r,level2);
-figure(2)
-imshow(bwredline)
+% figure(2)
+% imshow(bwredline)
 
 img1=bwareafilt(bwimg,[3300,3340]);
 bwallline=bwimg&~img1;
-figure(3)
-imshow(bwallline)
+% figure(3)
+% imshow(bwallline)
 
 %%
 cc=bwconncomp(bwimg);
@@ -69,9 +71,11 @@ for k=1:cc.NumObjects
     centroid(k,:)=stats(k).Centroid;
 end
 
-%%
 Ccentroid=centroid(Cindex,:);
 Lcentroid=centroid(Lindex,:);
+
+%%
+
 
 graph=zeros(noNode);
 

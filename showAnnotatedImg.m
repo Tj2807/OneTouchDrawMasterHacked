@@ -11,7 +11,7 @@ position = floor(Ccentroid);
 box_color = {'red'};
 %RGB = insertText(I,position,text_str,'FontSize',18,'BoxColor',box_color,'BoxOpacity',0.4,'TextColor','white');
 annotatedImg = insertText(img_crop,position,text_str,'FontSize',50,'BoxColor',box_color,'TextColor','white');
-figure(4)
+
 imshow(annotatedImg)
 
 end
