@@ -8,11 +8,12 @@
 %To do: A diagraph with no. of edges more than 1 between two vertices.
 classdef eulerGraph < handle
     properties
-        graphInp, nVertices, oddVertex , eulerIncludedEdges, eulerAnsArray , visited ;
+        graphInp, graphInpTransp, nVertices, oddVertex , eulerIncludedEdges, eulerAnsArray , visited ;
     end
     methods
         function obj = eulerGraph(edges)
             obj.graphInp=edges;
+            obj.graphInpTransp = obj.graphInp' ;
             obj.nVertices = size(obj.graphInp,1);
         end
         function isIt = isEuler(obj)
@@ -55,7 +56,11 @@ classdef eulerGraph < handle
                     obj.eulerIncludedEdges = obj.eulerIncludedEdges +1;
                     obj.eulerAnsArray{obj.eulerIncludedEdges,1} = vertex;
                     obj.eulerAnsArray{obj.eulerIncludedEdges,2} = i;
-                    obj.rmvNormalEdge(vertex,i);
+                    if obj.isEdgeDirected(vertex,i) %Check if edge is directed before removal/addition
+                        obj.rmvDiaEdge(vertex,i);
+                    else
+                        obj.rmvNormalEdge(vertex,i);
+                    end
                     obj.storeEuler(i);
                 end
             end
@@ -68,6 +73,19 @@ classdef eulerGraph < handle
             obj.graphInp(u,v) = obj.graphInp(u,v)+ 1;
             obj.graphInp(v,u) = obj.graphInp(v,u)+ 1;
         end
+        function rmvDiaEdge(obj,u,v)
+            obj.graphInp(u,v) = obj.graphInp(u,v)- 1;
+        end
+        function addDiaEdge(obj,u,v)
+            obj.graphInp(u,v) = obj.graphInp(u,v)+ 1;
+        end
+        function isIt = isEdgeDirected(obj,u,v)
+            if obj.graphInpTransp(u,v) == obj.graphInpTransp(v,u)
+                isIt = false;
+            else
+                isIt = true;
+            end
+        end     
         function isValid= isValidNextEdge(obj,u,v)
             %fprintf('at edge checking if valid %d-%d\n',u,v);
             remVertices=0;
@@ -78,10 +96,20 @@ classdef eulerGraph < handle
             end
             obj.visited = zeros(1,obj.nVertices);
             countWithEdge = obj.dfsCount(u);
-            obj.rmvNormalEdge(u,v);
+            %Account for Directed edge
+            if isEdgeDirected(u,v)
+                obj.rmvDiaEdge(u,v);
+            else
+                obj.rmvNormalEdge(u,v);
+            end
             obj.visited = zeros(1,obj.nVertices);
             countWithoutEdge = obj.dfsCount(u);
-            obj.addNormalEdge(u,v);
+            %Account for Directed edge
+            if isEdgeDirected(u,v)
+                obj.addDiaEdge(u,v);
+            else
+                obj.addNormalEdge(u,v);
+            end
             isValid = (remVertices==1 || countWithEdge==countWithoutEdge);
         end
         function countVisited = dfsCount(obj,u)
@@ -104,7 +132,7 @@ end
 function actionOutputAutomate(outputCellArray,circleCoors)
     nextButtonX = 945;
     nextButtonY = 1050;
-    swipeDuration = 70;
+    %swipeDuration = 70;
     nEdges = size(outputCellArray,1);
     
     for i=1:1:nEdges
