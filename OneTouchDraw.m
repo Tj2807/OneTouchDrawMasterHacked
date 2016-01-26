@@ -9,15 +9,14 @@ clc
 close all
 warning off
 %%
+% imshow(img)
 img=imread('img.png');
-%figure(1)
-%imshow(img)
 img_gray=rgb2gray(img);
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
 
-%img_gray=img_gray(251:end-340,:); % For Master Mode
 img_gray=img_gray(1:end-340,:);   %For Level Mode
+%img_gray=img_gray(251:end-340,:); % For Master Mode
 
 % [level,bwimg]=thresh_tool(img_gray);
 % imshow(bwimg)
@@ -38,33 +37,50 @@ bwredline=im2bw(img_r,level2);
 % figure(2)
 % imshow(bwredline)
 
-img1=bwareafilt(bwimg,[3300,3340]);
-bwallline=bwimg&~img1;
-% figure(3)
-% imshow(bwallline)
-
 %%
 cc=bwconncomp(bwimg);
 stats=regionprops(bwimg,'Centroid','MajorAxisLength','MinorAxisLength','Area');
-%%
-noNode=0;
+%% 
+noNode=0; noArrow=0;
 epsilon=10;
 
-Cindex=[];Lindex=[];
+Cindex=[];Aindex=[];
+
+nodes=zeros(size(bwimg));
+arrows=zeros(size(bwimg));
+label=bwlabel(bwimg);
 
 for k=1:cc.NumObjects
-    flag=0;
-    majorAxis=stats(k).MajorAxisLength;
-    minorAxis=stats(k).MinorAxisLength;
-
-    if abs(majorAxis-minorAxis)<epsilon
-        Cindex=[Cindex;k];
-        noNode=noNode+1;
-        flag=1;
+    %Node detection
+    if abs(stats(k).MinorAxisLength-stats(k).MinorAxisLength)<epsilon && ...
+       stats(k).MinorAxisLength>55 && stats(k).MinorAxisLength<65 &&...
+       stats(k).MajorAxisLength>65 && stats(k).MajorAxisLength<75 && ...
+       stats(k).Area>3300 && stats(k).Area<3450
+        
+            Cindex=[Cindex;k];
+            noNode=noNode+1;
+               
+            map=label==k;
+            nodes=nodes | map;
+    end
+    
+    %Arrow detection
+    if stats(k).Area>1750 && stats(k).Area<1850 && ...
+       stats(k).MajorAxisLength>45 && stats(k).MajorAxisLength<60 && ...
+       stats(k).MinorAxisLength>40 && stats(k).MinorAxisLength<55
+            Aindex=[Aindex;k];
+            noArrow=noArrow+1;
+            
+            map=label==k;
+            arrows=arrows | map;
     end
    
 end
+%% All lines
 
+bwallline=bwimg&~nodes;
+arrows=bwmorph(arrows,'thicken',10);
+bwallline= bwallline | arrows;
 %noLines=cc.NumObjects-noNode;
 %%
 centroid=zeros(cc.NumObjects,2);
@@ -74,13 +90,10 @@ for k=1:cc.NumObjects
 end
 
 Ccentroid=centroid(Cindex,:);
-Lcentroid=centroid(Lindex,:);
+Acentroid=centroid(Aindex,:);
 
 %%
-
-
 graph=zeros(noNode);
-
 
 for m=1:noNode
     for n=1:noNode
@@ -88,16 +101,7 @@ for m=1:noNode
             continue;
         end
         
-%         coordinate2=floor(mean(Ccentroid([m n],:)));
-%         coordinate1=floor(mean([Ccentroid(m,:);coordinate2]));
-%         coordinate3=floor(mean([Ccentroid(n,:);coordinate2]));
-%         
-%         
-%         
-%         if bwimg(coordinate1(2),coordinate1(1))&&bwimg(coordinate2(2),coordinate2(1))&&bwimg(coordinate3(2),coordinate3(1))
-%               graph(m,n)=1;
-%         end
-%          m=1;n=5;
+%          m=1;n=3;
         x1=Ccentroid(m,1);
         x2=Ccentroid(n,1);
         y1=Ccentroid(m,2);

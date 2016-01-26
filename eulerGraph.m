@@ -104,7 +104,7 @@ end
 function actionOutputAutomate(outputCellArray,circleCoors)
     nextButtonX = 945;
     nextButtonY = 1050;
-    swipeDuration = 100;
+    swipeDuration = 70;
     nEdges = size(outputCellArray,1);
     
     for i=1:1:nEdges
@@ -119,9 +119,13 @@ function actionOutputAutomate(outputCellArray,circleCoors)
         %Do the Swipe
         SwipeCommandArray=['adb shell input swipe' ' ' num2str(fromVertexCoorX) ' ' num2str(fromVertexCoorY) ' ' num2str(toVertexCoorX) ' ' num2str(toVertexCoorY) ' ' num2str(swipeDuration)];
         system(SwipeCommandArray);
+        
+%         if i==nEdges
+%             pause(1)
+%         end
     end
         % Level completed.Wait for Next button to appear and tap it.
-        pause(2);
+        pause(3);
         nextTapArray = ['adb shell input tap' ' ' num2str(nextButtonX) ' ' num2str(nextButtonY)];
         system(nextTapArray);
 end

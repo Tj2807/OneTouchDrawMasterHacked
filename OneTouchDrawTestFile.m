@@ -9,7 +9,7 @@ clc
 close all
 warning off
 %%
-imshow(img)
+% imshow(img)
 img_gray=rgb2gray(img);
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
@@ -17,29 +17,29 @@ img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_gray=img_gray(251:end-340,:); % For Master Mode
 img_gray=img_gray(1:end-340,:);   %For Level Mode
 
-[level,bwimg]=thresh_tool(img_gray);
-imshow(bwimg)
+% [level,bwimg]=thresh_tool(img_gray);
+% imshow(bwimg)
 
-% level1=110/255;
-% bwimg=im2bw(img_gray,level1);
+level1=110/255;
+bwimg=im2bw(img_gray,level1);
 figure(1)
 imshow(bwimg)
 %%
 img_r=img(:,:,1);
 %img_r=img_r(251:end-340,:);  % For Master Mode 
 img_r=img_r(1:end-340,:);  % For Level Mode
-[level,bwredline]=thresh_tool(img_r);
-figure(2)
-imshow(bwredline)
-% level2=200/255;
-% bwredline=im2bw(img_r,level2);
+% [level,bwredline]=thresh_tool(img_r);
+% figure(2)
+% imshow(bwredline)
+level2=200/255;
+bwredline=im2bw(img_r,level2);
 % figure(2)
 % imshow(bwredline)
 
 %%
 cc=bwconncomp(bwimg);
 stats=regionprops(bwimg,'Centroid','MajorAxisLength','MinorAxisLength','Area');
-%% Node detection
+%% 
 noNode=0; noArrow=0;
 epsilon=10;
 
@@ -50,7 +50,7 @@ arrows=zeros(size(bwimg));
 label=bwlabel(bwimg);
 
 for k=1:cc.NumObjects
-    %Circle detection
+    %Node detection
     if abs(stats(k).MinorAxisLength-stats(k).MinorAxisLength)<epsilon && ...
        stats(k).MinorAxisLength>55 && stats(k).MinorAxisLength<65 &&...
        stats(k).MajorAxisLength>65 && stats(k).MajorAxisLength<75 && ...
@@ -146,4 +146,4 @@ end
 
 showAnnotatedImg(img_crop,noNode,Ccentroid);
 %%
-inputGraph(graph)
+inputGraph(graph,Ccentroid)
