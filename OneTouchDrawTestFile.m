@@ -10,6 +10,7 @@ close all
 warning off
 %%
 % imshow(img)
+img=imread('img.png');
 img_gray=rgb2gray(img);
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
@@ -22,8 +23,8 @@ img_gray=img_gray(1:end-340,:);   %For Level Mode
 
 level1=110/255;
 bwimg=im2bw(img_gray,level1);
-figure(1)
-imshow(bwimg)
+% figure(1)
+% imshow(bwimg)
 %%
 img_r=img(:,:,1);
 %img_r=img_r(251:end-340,:);  % For Master Mode 
@@ -33,8 +34,8 @@ img_r=img_r(1:end-340,:);  % For Level Mode
 % imshow(bwredline)
 level2=200/255;
 bwredline=im2bw(img_r,level2);
-figure(2)
-imshow(bwredline)
+% figure(2)
+% imshow(bwredline)
 
 %%
 cc=bwconncomp(bwimg);
@@ -105,15 +106,6 @@ for m=1:noNode
             continue;
         end
         
-%         coordinate2=floor(mean(Ccentroid([m n],:)));
-%         coordinate1=floor(mean([Ccentroid(m,:);coordinate2]));
-%         coordinate3=floor(mean([Ccentroid(n,:);coordinate2]));
-%         
-%         
-%         
-%         if bwimg(coordinate1(2),coordinate1(1))&&bwimg(coordinate2(2),coordinate2(1))&&bwimg(coordinate3(2),coordinate3(1))
-%               graph(m,n)=1;
-%         end
 %          m=3;n=1;
         x1=Ccentroid(m,1);
         x2=Ccentroid(n,1);
@@ -154,18 +146,19 @@ for m=1:noNode
                 findArrowIndex=floor(mean(find(arrow_check)));
                 arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
                 
+                error=[100 100];
                 for k=1:size(Acentroid,1)
-                    if abs(Acentroid(k,:)-arrowCentroidCalc)<epsilon
-                        arrowIndex=k;
-                        break;
-                    end
+                     if abs(Acentroid(k,:)-arrowCentroidCalc)<error
+                         error=abs(Acentroid(k,:)-arrowCentroidCalc);
+                         arrowIndex=k;
+                     end                  
                 end
                 
-                a=Acentroid(arrowIndex,1)+1i*Acentroid(arrowIndex,2);
+                a1=Acentroid(arrowIndex,1)+1i*Acentroid(arrowIndex,2);
                 
                 
-                mDis=abs(c1-a);
-                nDis=abs(c2-a);
+                mDis=abs(c1-a1);
+                nDis=abs(c2-a1);
                 
                 if mDis<nDis
                     graph(m,n)=1;
