@@ -33,8 +33,8 @@ img_r=img_r(1:end-340,:);  % For Level Mode
 % imshow(bwredline)
 level2=200/255;
 bwredline=im2bw(img_r,level2);
-% figure(2)
-% imshow(bwredline)
+figure(2)
+imshow(bwredline)
 
 %%
 cc=bwconncomp(bwimg);
@@ -70,6 +70,8 @@ for k=1:cc.NumObjects
             Aindex=[Aindex;k];
             noArrow=noArrow+1;
             
+            
+            
             map=label==k;
             arrows=arrows | map;
     end
@@ -78,8 +80,8 @@ end
 %% All lines
 
 bwallline=bwimg&~nodes;
-arrows=bwmorph(arrows,'thicken',10);
-bwallline= bwallline | arrows;
+arrows1=bwmorph(arrows,'thicken',10);
+bwallline= bwallline | arrows1;
 %noLines=cc.NumObjects-noNode;
 %%
 centroid=zeros(cc.NumObjects,2);
@@ -112,7 +114,7 @@ for m=1:noNode
 %         if bwimg(coordinate1(2),coordinate1(1))&&bwimg(coordinate2(2),coordinate2(1))&&bwimg(coordinate3(2),coordinate3(1))
 %               graph(m,n)=1;
 %         end
-         m=1;n=3;
+%          m=3;n=1;
         x1=Ccentroid(m,1);
         x2=Ccentroid(n,1);
         y1=Ccentroid(m,2);
@@ -136,10 +138,49 @@ for m=1:noNode
         x=floor(real(points));y=floor(imag(points));
         
         if diag(bwallline(y,x))
+            %Line exists between m and n
             graph(m,n)=1;
             if bwredline(y(1),x(1)) && bwredline(y(end),x(end))
             graph(m,n)=2;
             end
+            
+            %Now check if an arrow exists between nodes m and n
+            arrow_check=zeros(length(x),1);
+            for k=1:length(x)
+                arrow_check(k)=arrows(y(k),x(k));
+            end
+            
+            if any(arrow_check)
+                findArrowIndex=floor(mean(find(arrow_check)));
+                arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
+                
+                for k=1:size(Acentroid,1)
+                    if abs(Acentroid(k,:)-arrowCentroidCalc)<epsilon
+                        arrowIndex=k;
+                        break;
+                    end
+                end
+                
+                a=Acentroid(arrowIndex,1)+1i*Acentroid(arrowIndex,2);
+                
+                
+                mDis=abs(c1-a);
+                nDis=abs(c2-a);
+                
+                if mDis<nDis
+                    graph(m,n)=1;
+                    if bwredline(y(1),x(1)) && bwredline(y(end),x(end))
+                        graph(m,n)=2;
+                    end
+                else
+                    graph(m,n)=0;
+                end
+               
+            end
+            
+            
+            
+            
         end    
     end
 end
