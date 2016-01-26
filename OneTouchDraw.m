@@ -22,8 +22,8 @@ img_gray=img_gray(1:end-340,:);   %For Level Mode
 
 level1=110/255;
 bwimg=im2bw(img_gray,level1);
-figure(1)
-imshow(bwimg)
+% figure(1)
+% imshow(bwimg)
 %%
 img_r=img(:,:,1);
 %img_r=img_r(251:end-340,:);  % For Master Mode 
@@ -33,8 +33,8 @@ img_r=img_r(1:end-340,:);  % For Level Mode
 % imshow(bwredline)
 level2=200/255;
 bwredline=im2bw(img_r,level2);
-figure(2)
-imshow(bwredline)
+% figure(2)
+% imshow(bwredline)
 
 %%
 cc=bwconncomp(bwimg);
