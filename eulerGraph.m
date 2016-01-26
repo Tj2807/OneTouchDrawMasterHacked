@@ -4,7 +4,7 @@
 %API Instructions:
 %Create an object to the class by giving the Graph Matrix as an Argument.
 %Call startEuler function without any argument.
-
+%adding a test comment
 %To do: A diagraph with no. of edges more than 1 between two vertices.
 classdef eulerGraph < handle
     properties
