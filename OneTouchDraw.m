@@ -10,6 +10,7 @@ close all
 warning off
 %%
 % imshow(img)
+img = imread('img.png');
 img_gray=rgb2gray(img);
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
@@ -42,6 +43,7 @@ stats=regionprops(bwimg,'Centroid','MajorAxisLength','MinorAxisLength','Area');
 %% 
 noNode=0; noArrow=0;
 epsilon=10;
+epsilon1=20;
 
 Cindex=[];Aindex=[];
 
@@ -155,17 +157,17 @@ for m=1:noNode
                 arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
                 
                 for k=1:size(Acentroid,1)
-                    if abs(Acentroid(k,:)-arrowCentroidCalc)<epsilon
+                    if abs(Acentroid(k,:)-arrowCentroidCalc)<epsilon1
                         arrowIndex=k;
                         break;
                     end
                 end
                 
-                a=Acentroid(arrowIndex,1)+1i*Acentroid(arrowIndex,2);
+                a1=Acentroid(arrowIndex,1)+1i*Acentroid(arrowIndex,2);
                 
                 
-                mDis=abs(c1-a);
-                nDis=abs(c2-a);
+                mDis=abs(c1-a1);
+                nDis=abs(c2-a1);
                 
                 if mDis<nDis
                     graph(m,n)=1;
