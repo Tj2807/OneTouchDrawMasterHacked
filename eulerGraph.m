@@ -96,7 +96,7 @@ classdef eulerGraph < handle
             obj.visited = zeros(1,obj.nVertices);
             countWithEdge = obj.dfsCount(u);
             %Account for Directed edge
-            if isEdgeDirected(u,v)
+            if obj.isEdgeDirected(u,v)
                 obj.rmvDiaEdge(u,v);
             else
                 obj.rmvNormalEdge(u,v);
@@ -104,7 +104,7 @@ classdef eulerGraph < handle
             obj.visited = zeros(1,obj.nVertices);
             countWithoutEdge = obj.dfsCount(u);
             %Account for Directed edge
-            if isEdgeDirected(u,v)
+            if obj.isEdgeDirected(u,v)
                 obj.addDiaEdge(u,v);
             else
                 obj.addNormalEdge(u,v);
