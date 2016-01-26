@@ -118,16 +118,15 @@ function actionOutputAutomate(outputCellArray,circleCoors)
         toVertexCoorY = circleCoors(toVertex,2);
         %Do the Swipe
         %SwipeCommandArray=['adb shell input swipe' ' ' num2str(fromVertexCoorX) ' ' num2str(fromVertexCoorY) ' ' num2str(toVertexCoorX) ' ' num2str(toVertexCoorY) ' ' num2str(swipeDuration)];
-        %Or Do the tap
-        %Tap Code Begin
-        SwipeCommandArray=['adb shell input tap' ' ' num2str(fromVertexCoorX) ' ' num2str(fromVertexCoorY)];
+        %Or Do the tep
+        SwipeCommandArray=['adb shell input swipe' ' ' num2str(fromVertexCoorX) ' ' num2str(fromVertexCoorY) ' ' num2str(toVertexCoorX) ' ' num2str(toVertexCoorY) ' ' num2str(swipeDuration)];
+        
         system(SwipeCommandArray);
-        pause(0.1);
-        if i==nEdges
-        SwipeCommandArray=['adb shell input tap' ' ' num2str(toVertexCoorX) ' ' num2str(toVertexCoorY)];
-        %Tap Code End.
-        system(SwipeCommandArray);
-        end
+        
+        
+%         if i==nEdges
+%             pause(1)
+%         end
     end
         % Level completed.Wait for Next button to appear and tap it.
         pause(3);
