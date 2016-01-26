@@ -40,43 +40,46 @@ imshow(bwredline)
 cc=bwconncomp(bwimg);
 stats=regionprops(bwimg,'Centroid','MajorAxisLength','MinorAxisLength','Area');
 %% Node detection
-noNode=0;
+noNode=0; noArrow=0;
 epsilon=10;
 
-Cindex=[];Lindex=[];
+Cindex=[];Aindex=[];
 
 nodes=zeros(size(bwimg));
+arrows=zeros(size(bwimg));
 label=bwlabel(bwimg);
 
 for k=1:cc.NumObjects
-    
-    majorAxis=stats(k).MajorAxisLength;
-    minorAxis=stats(k).MinorAxisLength;
-
     %Circle detection
-    if abs(majorAxis-minorAxis)<epsilon && ...
-            minorAxis>55 && minorAxis<65 &&...
-            majorAxis>65 && majorAxis<75 && 
-            stats(k).Area>3300 && stats(k).Area<3450
+    if abs(stats(k).MinorAxisLength-stats(k).MinorAxisLength)<epsilon && ...
+       stats(k).MinorAxisLength>55 && stats(k).MinorAxisLength<65 &&...
+       stats(k).MajorAxisLength>65 && stats(k).MajorAxisLength<75 && ...
+       stats(k).Area>3300 && stats(k).Area<3450
         
-        Cindex=[Cindex;k];
-        noNode=noNode+1;
-        
-        label=bwlabel(bwimg);
-    map=label==k;
-    nodes=nodes | (label==k);
+            Cindex=[Cindex;k];
+            noNode=noNode+1;
+               
+            map=label==k;
+            nodes=nodes | map;
     end
     
     %Arrow detection
     if stats(k).Area>1750 && stats(k).Area<1850 && ...
        stats(k).MajorAxisLength>45 && stats(k).MajorAxisLength<60 && ...
        stats(k).MinorAxisLength>40 && stats(k).MinorAxisLength<55
+            Aindex=[Aindex;k];
+            noArrow=noArrow+1;
             
+            map=label==k;
+            arrows=arrows | map;
+    end
    
 end
-%% Arrow detection
+%% All lines
 
 bwallline=bwimg&~nodes;
+arrows=bwmorph(arrows,'thicken',10);
+bwallline= bwallline | arrows;
 %noLines=cc.NumObjects-noNode;
 %%
 centroid=zeros(cc.NumObjects,2);
@@ -86,7 +89,7 @@ for k=1:cc.NumObjects
 end
 
 Ccentroid=centroid(Cindex,:);
-Lcentroid=centroid(Lindex,:);
+Acentroid=centroid(Aindex,:);
 
 %%
 
