@@ -1,13 +1,17 @@
-function showAnnotatedImg( img_crop,noNode,Ccentroid )
+function showAnnotatedImg( img_crop,node )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-text_str = cell(noNode+1,1);
+nodeIndex=size(node,2);
+text_str = cell(nodeIndex+1,1);
 
-for k=1:noNode
+for k=1:nodeIndex
    text_str{k} = num2str(k);
 end
 
-position = floor(Ccentroid);
+position=zeros(nodeIndex+1,2);
+for k=1:nodeIndex
+position(k,:) = floor(node(k).centroid);
+end
 
 box_color = {'black'};
 %RGB = insertText(I,position,text_str,'FontSize',18,'BoxColor',box_color,'BoxOpacity',0.4,'TextColor','white');
@@ -26,9 +30,9 @@ commentSwag =...
 };
 swagIndex = ceil(10*rand);
     
-position1=[position;[200 100]];
-text_str{noNode+1}=commentSwag{swagIndex};
-annotatedImg = insertText(img_crop,position1,text_str,'FontSize',50,'BoxColor',box_color,'BoxOpacity',0.4,'TextColor','white');
+position(nodeIndex+1,:)=[200 100];
+text_str{nodeIndex+1,1}=commentSwag{swagIndex};
+annotatedImg = insertText(img_crop,position,text_str,'FontSize',50,'BoxColor',box_color,'BoxOpacity',0.4,'TextColor','white');
 
  figure(1)
  imshow(annotatedImg)

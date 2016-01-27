@@ -8,40 +8,40 @@ clc
 
 close all
 warning off
-%%
+%% Image thresholding
+% Output of this segment is binary image bwimg which consistes of nodes,
+% edges and arrows
+
 % imshow(img)
 img=imread('img.png');
 img_gray=rgb2gray(img);
+
 img_crop=img(1:end-340,:,:);    %For Level Mode
 %img_crop=img(251:end-340,:,:);  % For Master Mode
 
-%img_gray=img_gray(251:end-340,:); % For Master Mode
 img_gray=img_gray(1:end-340,:);   %For Level Mode
+%img_gray=img_gray(251:end-340,:); % For Master Mode
 
 % [level,bwimg]=thresh_tool(img_gray);
-% imshow(bwimg)
 
 level1=110/255;
 bwimg=im2bw(img_gray,level1);
 % figure(1)
 % imshow(bwimg)
-%%
-img_r=img(:,:,1);
-%img_r=img_r(251:end-340,:);  % For Master Mode 
-img_r=img_r(1:end-340,:);  % For Level Mode
-% [level,bwredline]=thresh_tool(img_r);
-% figure(2)
-% imshow(bwredline)
-level2=200/255;
-bwredline=im2bw(img_r,level2);
-% figure(2)
-% imshow(bwredline)
 
-%%
-cc=bwconncomp(bwimg);
+%% Detect nodes and arrows from bwimg
+
+% Output of this segment is a stucture 'node' and 'arrow' whose fields are:
+% node:
+% centroid: Contains x,y coordinates of centroid of node in a 1x2 matrix
+% color: 'b','y','g','r', depending on color of node
+
+% arrow:
+% centroid: Contains x,y coordinates of centroid of arrow in a 1x2 matrix
+
 stats=regionprops(bwimg,'Centroid','MajorAxisLength','MinorAxisLength','Area');
-%% 
-noNode=0; noArrow=0;
+
+nodeIndex=0; arrowIndex=0;
 epsilon=10;
 
 Cindex=[];Aindex=[];
@@ -50,15 +50,18 @@ nodes=zeros(size(bwimg));
 arrows=zeros(size(bwimg));
 label=bwlabel(bwimg);
 
-for k=1:cc.NumObjects
+for k=1:size(stats,1)
     %Node detection
     if abs(stats(k).MinorAxisLength-stats(k).MinorAxisLength)<epsilon && ...
        stats(k).MinorAxisLength>55 && stats(k).MinorAxisLength<65 &&...
        stats(k).MajorAxisLength>65 && stats(k).MajorAxisLength<75 && ...
        stats(k).Area>3300 && stats(k).Area<3450
         
-            Cindex=[Cindex;k];
-            noNode=noNode+1;
+            %Cindex=[Cindex;k];
+            
+            nodeIndex=nodeIndex+1;
+            node(nodeIndex).centroid=stats(k).Centroid;
+            node(nodeIndex).color=findColor(img_crop,stats(k).Centroid);
                
             map=label==k;
             nodes=nodes | map;
@@ -68,54 +71,65 @@ for k=1:cc.NumObjects
     if stats(k).Area>1750 && stats(k).Area<1850 && ...
        stats(k).MajorAxisLength>45 && stats(k).MajorAxisLength<60 && ...
        stats(k).MinorAxisLength>40 && stats(k).MinorAxisLength<55
-            Aindex=[Aindex;k];
-            noArrow=noArrow+1;
-            
-            
-            
+%             Aindex=[Aindex;k];
+            arrowIndex=arrowIndex+1;
+            arrow(arrowIndex).centroid=stats(k).Centroid;
+                    
             map=label==k;
             arrows=arrows | map;
     end
    
 end
-%% All lines
+%% Isolate lines from bwimg
 
 bwallline=bwimg&~nodes;
 arrows1=bwmorph(arrows,'thicken',10);
 bwallline= bwallline | arrows1;
-%noLines=cc.NumObjects-noNode;
-%%
-centroid=zeros(cc.NumObjects,2);
 
-for k=1:cc.NumObjects
-    centroid(k,:)=stats(k).Centroid;
+%% Check connectivity between every pair of nodes
+
+% Output of this segment is a stucture 'edge' whose fields are:
+% graph= 0,if there is no edge between m and n
+%      = 1,if edge exists between m and n
+%        = 2,if double edge(red edge) exists between m and n
+% color='r','g','w', Depending on color of edge
+% isDirectional= 0, if edge is not directional
+%                = 1, if edge is directional
+           
+%Initialization of node structure
+for m=1:nodeIndex
+    for n=1:nodeIndex
+        edge(m,n).graph=0;
+        edge(m,n).color='w';
+        edge(m,n).isDirectional=0;
+        
+        if m==n
+            edge(m,n).graph=-1;
+            edge(m,n).color='';
+            edge(m,n).isDirectional=-1;
+        end
+    end
 end
 
-Ccentroid=centroid(Cindex,:);
-Acentroid=centroid(Aindex,:);
-
-%%
-
-
-graph=zeros(noNode);
-
-
-for m=1:noNode
-    for n=1:noNode
+for m=1:nodeIndex
+    for n=1:nodeIndex
         if m==n
             continue;
         end
         
 %          m=3;n=1;
-        x1=Ccentroid(m,1);
-        x2=Ccentroid(n,1);
-        y1=Ccentroid(m,2);
-        y2=Ccentroid(n,2);
-        
+
+        x1=node(m).centroid(1,1);
+        x2=node(n).centroid(1,1);
+        y1=node(m).centroid(1,2);
+        y2=node(n).centroid(1,2);
+% Convert x,y coordinates of centres of nodes m,n to complex numbers for easy calculation of distance        
         c1=x1+1i*y1;
         c2=x2+1i*y2;
         dis=abs(c1-c2);
-        
+ 
+% Take equally spaced points between the nodes m and n and check whether all points
+% lie in the white line(bwallline)
         minSpacing=ceil(dis/10);
         points=conj(linspace(c1,c2,minSpacing))';
         margin1=abs(points-c1);
@@ -130,13 +144,22 @@ for m=1:noNode
         x=floor(real(points));y=floor(imag(points));
         
         if diag(bwallline(y,x))
-            %Line exists between m and n
-            graph(m,n)=1;
-            if bwredline(y(1),x(1)) && bwredline(y(end),x(end))
-            graph(m,n)=2;
+            
+%Line exists between m and n
+            edge(m,n).graph=1;
+            color(1)=findColor(img_crop,[x(1) y(1)]);
+            color(2)=findColor(img_crop,[x(end) y(end)]);
+            
+            if color(1)==color(2)
+                edge(m,n).color=color(1);
             end
             
-            %Now check if an arrow exists between nodes m and n
+            
+            if isequal(edge(m,n).color,'r')
+                edge(m,n).graph=2;
+            end
+            
+%Now check if an arrow exists between nodes m and n
             arrow_check=zeros(length(x),1);
             for k=1:length(x)
                 arrow_check(k)=arrows(y(k),x(k));
@@ -147,37 +170,36 @@ for m=1:noNode
                 arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
                 
                 error=[100 100];
-                for k=1:size(Acentroid,1)
-                     if abs(Acentroid(k,:)-arrowCentroidCalc)<error
-                         error=abs(Acentroid(k,:)-arrowCentroidCalc);
+                for k=1:size(arrow,2)
+                     if abs(arrow(k).centroid-arrowCentroidCalc)<error
+                         error=abs(arrow(k).centroid-arrowCentroidCalc);
                          arrowIndex=k;
                      end                  
                 end
                 
-                a1=Acentroid(arrowIndex,1)+1i*Acentroid(arrowIndex,2);
+                a1=arrow(arrowIndex).centroid(1,1)+1i*arrow(arrowIndex).centroid(1,2);
                 
                 
                 mDis=abs(c1-a1);
                 nDis=abs(c2-a1);
                 
+                edge(m,n).isDirectional=1;
+                
                 if mDis<nDis
-                    graph(m,n)=1;
-                    if bwredline(y(1),x(1)) && bwredline(y(end),x(end))
-                        graph(m,n)=2;
+                    edge(m,n).graph=1;
+                                        
+                    if isequal(edge(m,n).color,'r')
+                        edge(m,n).graph=2;
                     end
                 else
-                    graph(m,n)=0;
+                    edge(m,n).graph=0;
                 end
                
-            end
-            
-            
-            
-            
+            end           
         end    
     end
 end
 
-showAnnotatedImg(img_crop,noNode,Ccentroid);
+showAnnotatedImg(img_crop,node);
 %%
-inputGraph(graph,Ccentroid)
+% inputGraph(node,edge)
