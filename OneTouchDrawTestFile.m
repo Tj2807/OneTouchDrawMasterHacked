@@ -13,7 +13,7 @@ warning off
 % edges and arrows
 
 % imshow(img)
-img=imread('img.png');
+%img=imread('img.png');
 img_gray=rgb2gray(img);
 
 img_crop=img(1:end-340,:,:);    %For Level Mode
@@ -60,8 +60,8 @@ for k=1:size(stats,1)
             %Cindex=[Cindex;k];
             
             nodeIndex=nodeIndex+1;
-            node(nodeIndex).centroid=stats(k).Centroid;
-            node(nodeIndex).color=findColor(img_crop,stats(k).Centroid);
+            node.centroid(nodeIndex,:)=stats(k).Centroid;
+            node.color(nodeIndex,1)=findColor(img_crop,stats(k).Centroid);
                
             map=label==k;
             nodes=nodes | map;
@@ -73,7 +73,7 @@ for k=1:size(stats,1)
        stats(k).MinorAxisLength>40 && stats(k).MinorAxisLength<55
 %             Aindex=[Aindex;k];
             arrowIndex=arrowIndex+1;
-            arrow(arrowIndex).centroid=stats(k).Centroid;
+            arrow.centroid(arrowIndex,:)=stats(k).Centroid;
                     
             map=label==k;
             arrows=arrows | map;
@@ -99,14 +99,14 @@ bwallline= bwallline | arrows1;
 %Initialization of node structure
 for m=1:nodeIndex
     for n=1:nodeIndex
-        edge(m,n).graph=0;
-        edge(m,n).color='w';
-        edge(m,n).isDirectional=0;
+        edge.graph(m,n)=0;
+        edge.color(m,n)='w';
+        edge.isDirectional(m,n)=0;
         
         if m==n
-            edge(m,n).graph=-1;
-            edge(m,n).color='';
-            edge(m,n).isDirectional=-1;
+            edge.graph(m,n)=-1;
+            %edge.color(m,n)=[];
+            edge.isDirectional(m,n)=-1;
         end
     end
 end
@@ -119,10 +119,10 @@ for m=1:nodeIndex
         
 %          m=3;n=1;
 
-        x1=node(m).centroid(1,1);
-        x2=node(n).centroid(1,1);
-        y1=node(m).centroid(1,2);
-        y2=node(n).centroid(1,2);
+        x1=node.centroid(m,1);
+        x2=node.centroid(n,1);
+        y1=node.centroid(m,2);
+        y2=node.centroid(n,2);
 % Convert x,y coordinates of centres of nodes m,n to complex numbers for easy calculation of distance        
         c1=x1+1i*y1;
         c2=x2+1i*y2;
@@ -146,17 +146,17 @@ for m=1:nodeIndex
         if diag(bwallline(y,x))
             
 %Line exists between m and n
-            edge(m,n).graph=1;
+            edge.graph(m,n)=1;
             color(1)=findColor(img_crop,[x(1) y(1)]);
             color(2)=findColor(img_crop,[x(end) y(end)]);
             
             if color(1)==color(2)
-                edge(m,n).color=color(1);
+                edge.color(m,n)=color(1);
             end
             
             
-            if isequal(edge(m,n).color,'r')
-                edge(m,n).graph=2;
+            if isequal(edge.color(m,n),'r')
+                edge.graph(m,n)=2;
             end
             
 %Now check if an arrow exists between nodes m and n
@@ -170,29 +170,29 @@ for m=1:nodeIndex
                 arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
                 
                 error=[100 100];
-                for k=1:size(arrow,2)
-                     if abs(arrow(k).centroid-arrowCentroidCalc)<error
-                         error=abs(arrow(k).centroid-arrowCentroidCalc);
+                for k=1:size(arrow.centroid,1)
+                     if abs(arrow.centroid(k,:)-arrowCentroidCalc)<error
+                         error=abs(arrow.centroid(k,:)-arrowCentroidCalc);
                          arrowIndex=k;
                      end                  
                 end
                 
-                a1=arrow(arrowIndex).centroid(1,1)+1i*arrow(arrowIndex).centroid(1,2);
+                a1=arrow.centroid(arrowIndex,1)+1i*arrow.centroid(arrowIndex,2);
                 
                 
                 mDis=abs(c1-a1);
                 nDis=abs(c2-a1);
                 
-                edge(m,n).isDirectional=1;
+                edge.isDirectional(m,n)=1;
                 
                 if mDis<nDis
-                    edge(m,n).graph=1;
+                    edge.graph(m,n)=1;
                                         
-                    if isequal(edge(m,n).color,'r')
-                        edge(m,n).graph=2;
+                    if isequal(edge.color(m,n),'r')
+                        edge.graph(m,n)=2;
                     end
                 else
-                    edge(m,n).graph=0;
+                    edge.graph(m,n)=0;
                 end
                
             end           

@@ -1,7 +1,7 @@
 function showAnnotatedImg( img_crop,node )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-nodeIndex=size(node,2);
+nodeIndex=size(node.centroid,1);
 text_str = cell(nodeIndex+1,1);
 
 for k=1:nodeIndex
@@ -10,7 +10,7 @@ end
 
 position=zeros(nodeIndex+1,2);
 for k=1:nodeIndex
-position(k,:) = floor(node(k).centroid);
+position(k,:) = floor(node.centroid(k,:));
 end
 
 box_color = {'black'};
