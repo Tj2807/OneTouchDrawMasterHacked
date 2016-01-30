@@ -12,8 +12,8 @@ warning off
 % Output of this segment is binary image bwimg which consistes of nodes,
 % edges and arrows
 
-% imshow(img)
-%img=imread('img.png');
+%imshow(img)
+img=imread('img.png');
 img_gray=rgb2gray(img);
 
 img_crop=img(1:end-340,:,:);    %For Level Mode
@@ -104,9 +104,9 @@ for m=1:nodeIndex
         edge.isDirectional(m,n)=0;
         
         if m==n
-            edge.graph(m,n)=-1;
+            edge.graph(m,n)=0;
             %edge.color(m,n)=[];
-            edge.isDirectional(m,n)=-1;
+            edge.isDirectional(m,n)=0;
         end
     end
 end
@@ -202,4 +202,4 @@ end
 
 showAnnotatedImg(img_crop,node);
 %%
-% inputGraph(node,edge)
+ inputGraph(node,edge)
