@@ -11,7 +11,7 @@ classdef eulerGraph < handle
     end
     methods
         function obj = eulerGraph(edges)
-            obj.graphInp=edges;
+            obj.graphInp=edges.graph;
             obj.graphInpTransp = obj.graphInp' ;
             obj.nVertices = size(obj.graphInp,1);
         end
@@ -47,10 +47,10 @@ classdef eulerGraph < handle
             actionOutputAutomate(ansCellArray,circleCoors);
         end
         function storeEuler(obj,vertex)
-            %fprintf('here at %d\n',vertex);
+            fprintf('here at %d\n',vertex);
             for i=1:1:obj.nVertices
                 adj = obj.graphInp(vertex,i);
-                %fprintf('at edge %d-%d\n',vertex,i);
+                fprintf('at edge %d-%d\n',vertex,i);
                 if adj~=0 && obj.isValidNextEdge(vertex,i)
                     obj.eulerIncludedEdges = obj.eulerIncludedEdges +1;
                     obj.eulerAnsArray{obj.eulerIncludedEdges,1} = vertex;

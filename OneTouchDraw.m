@@ -202,4 +202,4 @@ end
 
 showAnnotatedImg(img_crop,node);
 %%
-% inputGraph(node,edge)
+inputGraph(node,edge)
