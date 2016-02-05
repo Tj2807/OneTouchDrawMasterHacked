@@ -99,15 +99,10 @@ bwallline= bwallline | arrows1;
 %Initialization of node structure
 for m=1:nodeIndex
     for n=1:nodeIndex
-        edge.graph(m,n)=0;
+        edge.undirGraph(m,n)=0;
         edge.color(m,n)='w';
-        edge.isDirectional(m,n)=0;
+        edge.dirGraph(m,n)=0;
         
-        if m==n
-            edge.graph(m,n)=-1;
-            %edge.color(m,n)=[];
-            edge.isDirectional(m,n)=-1;
-        end
     end
 end
 
@@ -146,56 +141,58 @@ for m=1:nodeIndex
         if diag(bwallline(y,x))
             
 %Line exists between m and n
-            edge.graph(m,n)=1;
+    
             color(1)=findColor(img_crop,[x(1) y(1)]);
             color(2)=findColor(img_crop,[x(end) y(end)]);
-            
+
             if color(1)==color(2)
                 edge.color(m,n)=color(1);
             end
-            
-            
-            if isequal(edge.color(m,n),'r')
-                edge.graph(m,n)=2;
-            end
-            
-%Now check if an arrow exists between nodes m and n
+            %Now check if an arrow exists between nodes m and n
             arrow_check=zeros(length(x),1);
             for k=1:length(x)
                 arrow_check(k)=arrows(y(k),x(k));
             end
             
             if any(arrow_check)
-                findArrowIndex=floor(mean(find(arrow_check)));
-                arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
-                
-                error=[100 100];
-                for k=1:size(arrow.centroid,1)
-                     if abs(arrow.centroid(k,:)-arrowCentroidCalc)<error
-                         error=abs(arrow.centroid(k,:)-arrowCentroidCalc);
-                         arrowIndex=k;
-                     end                  
-                end
-                
-                a1=arrow.centroid(arrowIndex,1)+1i*arrow.centroid(arrowIndex,2);
-                
-                
-                mDis=abs(c1-a1);
-                nDis=abs(c2-a1);
-                
-                edge.isDirectional(m,n)=1;
-                
-                if mDis<nDis
-                    edge.graph(m,n)=1;
-                                        
-                    if isequal(edge.color(m,n),'r')
-                        edge.graph(m,n)=2;
+                    findArrowIndex=floor(mean(find(arrow_check)));
+                    arrowCentroidCalc=[x(findArrowIndex) y(findArrowIndex)];
+
+                    error=[100 100];
+                    for k=1:size(arrow.centroid,1)
+                         if abs(arrow.centroid(k,:)-arrowCentroidCalc)<error
+                             error=abs(arrow.centroid(k,:)-arrowCentroidCalc);
+                             arrowIndex=k;
+                         end                  
                     end
-                else
-                    edge.graph(m,n)=0;
-                end
-               
-            end           
+
+                    a1=arrow.centroid(arrowIndex,1)+1i*arrow.centroid(arrowIndex,2);
+
+
+                    mDis=abs(c1-a1);
+                    nDis=abs(c2-a1);
+
+                    %edge.isDirectional(m,n)=1;
+
+                    if mDis<nDis
+                        edge.dirGraph(m,n)=1;
+                        
+                        if isequal(edge.color(m,n),'r')
+                            edge.dirGraph(m,n)=2;
+                        end
+                    else
+                        edge.dirGraph(m,n)=0;
+                    end
+
+                else 
+
+                    edge.undirGraph(m,n)=1;
+                    
+                    if isequal(edge.color(m,n),'r')
+                        edge.undirGraph(m,n)=2;
+                    end
+            
+            end
         end    
     end
 end

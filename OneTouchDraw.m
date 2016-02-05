@@ -3,7 +3,7 @@
 %the need of taking any permission.
 
 %Import the screenshot and rename it as img in the workspace and run program
-clearvars -except img
+%clearvars -except img
 clc
 
 close all
